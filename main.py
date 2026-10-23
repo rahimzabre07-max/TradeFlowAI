@@ -1,41 +1,58 @@
-import time
+import flet as ft
 
-print("=================================================")
-print("  🤖 TRADEFLOW AI - MÉTHODE TENDANCE & PROBABILITÉ")
-print("=================================================")
+def main(page: ft.Page):
+    page.title = "TradeFlow AI"
+    page.vertical_alignment = ft.MainAxisAlignment.CENTER
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    page.theme_mode = ft.ThemeMode.DARK
+    page.padding = 20
 
-capital_input = input("Entrez votre capital disponible ($) : ")
-try:
-    capital = float(capital_input.replace("$", "").strip())
-except ValueError:
-    capital = 16.0
+    bot_status = ft.Text("Statut : Arrêté 🔴", size=18, weight=ft.FontWeight.BOLD, color=ft.colors.RED_400)
+    balance_text = ft.Text("Solde : $1,000.00", size=22, weight=ft.FontWeight.BOLD)
+    log_view = ft.ListView(expand=1, spacing=5, padding=10, auto_scroll=True)
 
-print("\n[Chargement] Analyse de la tendance globale du marché...")
-time.sleep(1)
+    def toggle_bot(e):
+        if bot_status.value.find("Arrêté") != -1:
+            bot_status.value = "Statut : En cours d'exécution 🟢"
+            bot_status.color = ft.colors.GREEN_400
+            start_stop_btn.text = "Arrêter le Bot"
+            start_stop_btn.bgcolor = ft.colors.RED_700
+            log_view.controls.append(ft.Text(">>> Bot démarré avec succès. Analyse du marché...", color=ft.colors.GREEN_300))
+        else:
+            bot_status.value = "Statut : Arrêté 🔴"
+            bot_status.color = ft.colors.RED_400
+            start_stop_btn.text = "Démarrer le Bot"
+            start_stop_btn.bgcolor = ft.colors.GREEN_700
+            log_view.controls.append(ft.Text(">>> Bot arrêté par l'utilisateur.", color=ft.colors.RED_300))
+        page.update()
 
-# Application de la méthode pro
-paire = "EUR/USD"
-tendance = "HAUSSIÈRE FORTE (Tendance de fond)"
-action = "ACHETER (BUY / LONG)"
-prix_entree = 1.0850
-stop_loss = 1.0820       # -30 pips (Risque)
-take_profit = 1.0920     # +70 pips (Objectif / Ratio > 1:2)
-risque_max_usd = capital * 0.02  # 2% de risque
-gain_potentiel = risque_max_usd * 2.3
+    start_stop_btn = ft.ElevatedButton(
+        text="Démarrer le Bot",
+        icon=ft.icons.PLAY_ARROW,
+        bgcolor=ft.colors.GREEN_700,
+        color=ft.colors.WHITE,
+        on_click=toggle_bot,
+        width=200
+    )
 
-def main():
-    print(f"\n🔹 Actif : {paire}")
-    print(f"📈 Analyse : {tendance}")
-    print(f"🚀 ACTION MÉTHODE : {action}")
-    print(f"-----------------------------------------")
-    print(f"🛑 STOP LOSS (Sécurité max) : {stop_loss} (-{risque_max_usd:.2f} $)")
-    print(f"🎯 TAKE PROFIT (Cible pro)  : {take_profit} (+{gain_potentiel:.2f} $)")
-    print(f"-----------------------------------------")
-    print("💡 RÈGLE DE LA MÉTHODE :")
-    print("   On laisse courir les gains vers le Take Profit")
-    print("   et on coupe net au Stop Loss si le plan échoue.")
-    print("-----------------------------------------")
+    page.add(
+        ft.Column([
+            ft.Text("🤖 TradeFlow AI", size=26, weight=ft.FontWeight.BOLD, color=ft.colors.BLUE_400),
+            ft.Divider(),
+            balance_text,
+            bot_status,
+            ft.Container(height=10),
+            start_stop_btn,
+            ft.Divider(),
+            ft.Text("Journal des activités :", weight=ft.FontWeight.BOLD),
+            ft.Container(
+                content=log_view,
+                bgcolor=ft.colors.BLACK12,
+                border_radius=10,
+                height=200,
+                padding=10,
+            )
+        ], alignment=ft.MainAxisAlignment.START, horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+    )
 
-if __name__ == "__main__":
-    main()
-
+ft.app(target=main)
